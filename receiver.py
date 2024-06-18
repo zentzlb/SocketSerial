@@ -47,7 +47,7 @@ class Receiver:
                 try:
                     data = pickle.loads(conn.recv(2048))
                     self.data = data
-                    # print(data)
+                    print(data)
                 except EOFError as e:
                     print(e)
                     conn.close()

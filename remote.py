@@ -35,7 +35,7 @@ class Remote:
 
 
 if __name__ == '__main__':
-    r = Remote(socket.gethostbyname(socket.gethostname()), 5555)
+    r = Remote('192.168.1.70', 5555)
     r.start_thread()
     while True:
         nums = input("Enter multiple numbers: ")
