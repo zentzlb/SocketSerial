@@ -2,7 +2,7 @@ import pickle
 import socket
 from _thread import start_new_thread, exit
 import time
-from typing import Callable, Any
+from typing import Any
 
 import sys
 
@@ -12,13 +12,12 @@ import sys
 
 
 class Receiver:
-
     host = socket.gethostbyname(socket.gethostname())
+    run = True
+    print(host)
 
     def __init__(self, port: int):
-        self.run = True
         self.port = port
-        self.conn: None | socket.socket = None
         self.data: Any = None
         # atexit.register(self.close)
 
@@ -27,23 +26,20 @@ class Receiver:
         raise SystemExit
 
     def main(self):
-        print('main')
-        print('here')
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conn:
-            conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            conn.bind((self.host, self.port))
-            conn.listen()
-            print('connect')
+        start_new_thread(self.connect, tuple())
+
+    def connect(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((self.host, self.port))
+            s.listen()
             while self.run:
                 try:
-                    conn, addr = conn.accept()
+                    conn, addr = s.accept()
                     print(f"\nConnected to: {addr}")
                     start_new_thread(self.listen, (conn, addr))
                 except OSError as e:
                     print(e)
-
-    # def connect(self):
-
 
     def listen(self, conn: socket.socket, addr: tuple):
 
@@ -53,8 +49,15 @@ class Receiver:
         with conn:
             while run:
                 try:
-                    self.data = pickle.loads(conn.recv(1048576))
-                    print(self.data)
+                    # time.sleep(0.01)
+                    data = conn.recv(1048576)
+
+                    self.data = pickle.loads(data)
+                    print(data.__sizeof__())
+                except EOFError as e:
+                    run = False
+                    print(e.__cause__)
+                    print(f'Connection to {addr} Lost -> Closing Thread')
                 except ConnectionResetError as e:
                     run = False
                     # print(f'Connection Name: {conn.getsockname()}')
@@ -67,7 +70,7 @@ class Receiver:
                     print(f'Connection to {addr} Aborted -> Closing Thread')
 
 
-
 if __name__ == '__main__':
     r = Receiver(5555)
     r.main()
+

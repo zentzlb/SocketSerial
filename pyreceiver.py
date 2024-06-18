@@ -49,5 +49,5 @@ class Receiver:
 
 
 if __name__ == '__main__':
-    r = Receiver(socket.gethostbyname('DEEP-BLUE'), 5555)
+    r = Receiver(socket.gethostbyname('Zentz-LT'), 5555)
     r.control()
