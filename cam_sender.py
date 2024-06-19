@@ -68,7 +68,7 @@ class Transmitter:
 
 
 if __name__ == '__main__':
-    r = Transmitter(socket.gethostbyname('Zentz-LT'), 5555)
+    r = Transmitter(socket.gethostbyname('Zentz-LT'), 5554)
     r.main()
     while True:
         nums = input("Enter multiple numbers: ")

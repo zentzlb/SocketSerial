@@ -41,6 +41,15 @@ class Receiver:
                 except OSError as e:
                     print(e)
 
+    def receive(self, conn: socket.socket, buffer: int) -> Any:
+        packet = conn.recv(buffer)
+        while True:
+            try:
+                return pickle.loads(packet)
+            except pickle.UnpicklingError:
+                packet += conn.recv(buffer)
+
+
     def listen(self, conn: socket.socket, addr: tuple):
 
         # print(f'Connection to {addr} Established -> Starting Thread')
@@ -50,10 +59,14 @@ class Receiver:
             while run:
                 try:
                     # time.sleep(0.01)
-                    data = conn.recv(1048576)
+                    self.data = self.receive(conn, 1048576)
 
-                    self.data = pickle.loads(data)
-                    print(data.__sizeof__())
+                    # packet = conn.recv(64)
+
+
+
+                    # self.data = pickle.loads(data)
+                    print(self.data)
                 except EOFError as e:
                     run = False
                     print(e.__cause__)
@@ -71,6 +84,6 @@ class Receiver:
 
 
 if __name__ == '__main__':
-    r = Receiver(5555)
-    r.main()
+    r = Receiver(5554)
+    r.connect()
 
